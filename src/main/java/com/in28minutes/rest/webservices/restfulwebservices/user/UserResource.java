@@ -1,6 +1,9 @@
 package com.in28minutes.rest.webservices.restfulwebservices.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.Resource;
+import org.springframework.hateoas.mvc.ControllerLinkBuilder;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -20,15 +23,22 @@ public class UserResource {
         return service.findAll();
     }
 
-    @GetMapping(path = "/users/{id}")
-    public User retrieveUserById(@PathVariable int id) {
+    @GetMapping(path = "/users/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Resource<User> retrieveUserById(@PathVariable int id) {
         User user = service.findOne(id);
         if(user == null)
             throw new UserNotFoundException("id-"+id);
-        return user;
+
+        Resource<User> resource = new Resource<>(user);
+
+        ControllerLinkBuilder linkTo = ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(this.getClass()).retrieveAllUsers());
+
+        resource.add(linkTo.withRel("all-users"));
+
+        return resource;
     }
 
-    @PostMapping("/users")
+    @PostMapping(value = "/users")
     public ResponseEntity<Object> createUser(@Valid @RequestBody User user) {
         User savedUser = service.save(user);
 
