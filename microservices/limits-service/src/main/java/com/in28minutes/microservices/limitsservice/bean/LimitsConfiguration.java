@@ -1,5 +1,6 @@
 package com.in28minutes.microservices.limitsservice.bean;
 
+
 public class LimitsConfiguration {
 
     private int maximum;
